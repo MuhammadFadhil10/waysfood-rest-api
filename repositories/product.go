@@ -38,7 +38,7 @@ func (r *repository) CreateProduct(product models.Product) (models.Product, erro
 }
 
 func (r *repository) UpdateProduct(Product models.Product, ID int) (models.Product, error) {
-	err := r.db.Save(&Product).Error
+	err := r.db.Model(&Product).Where("id=? ", ID).Updates(&Product).Error
 
 	return Product, err
 }
