@@ -1,6 +1,7 @@
 package repositories
 
 import (
+	"fmt"
 	"go-batch2/models"
 
 	"gorm.io/gorm"
@@ -34,6 +35,10 @@ func (r *repository) GetTransactionByID(ID int) (models.Transaction, error) {
 
 func (r *repository) CreateTransaction(transaction models.Transaction) (models.Transaction, error) {
 	err := r.db.Create(&transaction).Error
+
+	if err != nil {
+		fmt.Println(err)
+	}
 
 	return transaction, err
 }

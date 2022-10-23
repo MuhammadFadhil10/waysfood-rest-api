@@ -37,7 +37,7 @@ func (h *handlerProduct) GetProducts(w http.ResponseWriter, r *http.Request) {
 
 	// set product image below
 	for i, p := range products {
-		products[i].Image = os.Getenv("PATH_FILE") + p.Image
+		products[i].Image = os.Getenv("UPLOAD_PATH_NAME") + p.Image
 	}
 	// set product image above
 
@@ -100,7 +100,7 @@ func (h *handlerProduct) CreateProduct(w http.ResponseWriter, r *http.Request) {
 	product := models.Product{
 		Title:  request.Title,
 		Price:  request.Price,
-		Image:  filename,
+		Image:  os.Getenv("UPLOAD_PATH_NAME") + filename,
 		Qty:    request.Qty,
 		UserID: userId,
 	}

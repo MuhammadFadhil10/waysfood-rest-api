@@ -46,7 +46,7 @@ func (h *handlerTransaction) GetTransactionByID(w http.ResponseWriter, r *http.R
 	var transaction models.Transaction
 	transaction, err := h.TransactionRepository.GetTransactionByID(id)
 	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
+		w.WriteHeader(http.StatusNotFound)
 		response := dto.ErrorResult{Status: "Failed", Message: err.Error()}
 		json.NewEncoder(w).Encode(response)
 		return
