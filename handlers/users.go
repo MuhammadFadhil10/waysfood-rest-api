@@ -169,5 +169,6 @@ func convertResponse(u models.User) usersdto.UserResponse {
 		Location: u.Location,
 		Role:     u.Role,
 		Image:    u.Image,
+		
 	}
 }

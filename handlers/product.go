@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"encoding/json"
+	"fmt"
 	productdto "go-batch2/dto/product"
 	dto "go-batch2/dto/result"
 	"go-batch2/models"
@@ -68,6 +69,25 @@ func (h *handlerProduct) GetProductByID(w http.ResponseWriter, r *http.Request) 
 	response := dto.SuccessResult{Status: "Success", Data: product}
 	json.NewEncoder(w).Encode(response)
 
+}
+
+func (h *handlerProduct) GetProductByPartner(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	id, _ := strconv.Atoi(mux.Vars(r)["userId"])
+
+	var products []models.Product
+	products, err := h.ProductRepository.GetProductByPartner(id)
+	fmt.Println(products)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		response := dto.ErrorResult{Status: "Failed", Message: err.Error()}
+		json.NewEncoder(w).Encode(response)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+	response := dto.SuccessResult{Status: "Success", Data: products}
+	json.NewEncoder(w).Encode(response)
 }
 
 func (h *handlerProduct) CreateProduct(w http.ResponseWriter, r *http.Request) {
@@ -137,8 +157,6 @@ func (h *handlerProduct) UpdateProduct(w http.ResponseWriter, r *http.Request) {
 	product := models.Product{}
 
 	product.ID = id
-	product.User = product.User
-	product.UserID = product.UserID
 
 	if request.Title != "" {
 		product.Title = request.Title
