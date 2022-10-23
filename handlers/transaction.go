@@ -34,7 +34,7 @@ func (h *handlerTransaction) ShowTransaction(w http.ResponseWriter, r *http.Requ
 	}
 
 	w.WriteHeader(http.StatusOK)
-	response := dto.SuccessResult{Status: "Success", Data: transaction}
+	response := dto.SuccessResult{Status: "Success", Data: convertTransactionResponse(transaction)}
 	json.NewEncoder(w).Encode(response)
 }
 
@@ -168,4 +168,23 @@ func (h *handlerTransaction) DeleteTransaction(w http.ResponseWriter, r *http.Re
 	w.WriteHeader(http.StatusOK)
 	response := dto.SuccessResult{Status: "Success", Data: data}
 	json.NewEncoder(w).Encode(response)
+}
+
+// func convertResponse(u models.Tra) transactiondto.TransactionResponse {
+// 	return transactiondto.TransactionResponse{
+
+// 	}
+// }
+
+func convertTransactionResponse(u []models.Transaction) []transactiondto.TransactionResponse {
+	var products []models.ProductResponse
+	products = append(products, u[0].Product)
+	return []transactiondto.TransactionResponse{
+		transactiondto.TransactionResponse{
+			ID:      u[0].ID,
+			Users:   u[0].Users,
+			Status:  u[0].Status,
+			Product: products,
+		},
+	}
 }
