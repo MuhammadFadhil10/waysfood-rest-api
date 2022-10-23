@@ -2,7 +2,6 @@ package handlers
 
 import (
 	"encoding/json"
-	"fmt"
 	productdto "go-batch2/dto/product"
 	dto "go-batch2/dto/result"
 	"go-batch2/models"
@@ -77,7 +76,6 @@ func (h *handlerProduct) GetProductByPartner(w http.ResponseWriter, r *http.Requ
 
 	var products []models.Product
 	products, err := h.ProductRepository.GetProductByPartner(id)
-	fmt.Println(products)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		response := dto.ErrorResult{Status: "Failed", Message: err.Error()}

@@ -177,14 +177,19 @@ func (h *handlerTransaction) DeleteTransaction(w http.ResponseWriter, r *http.Re
 // }
 
 func convertTransactionResponse(u []models.Transaction) []transactiondto.TransactionResponse {
+	
+
 	var products []models.ProductResponse
-	products = append(products, u[0].Product)
-	return []transactiondto.TransactionResponse{
-		transactiondto.TransactionResponse{
-			ID:      u[0].ID,
-			Users:   u[0].Users,
-			Status:  u[0].Status,
+	var resp []transactiondto.TransactionResponse
+
+	for _, r := range u {
+		products = append(products, r.Product)
+		resp = append(resp, transactiondto.TransactionResponse{
+			ID:      r.ID,
+			Users:   r.Users,
+			Status:  r.Status,
 			Product: products,
-		},
+		})
 	}
+	return resp
 }

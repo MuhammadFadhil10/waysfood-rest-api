@@ -35,7 +35,7 @@ func (r *repository) GetProductByID(ID int) (models.Product, error) {
 
 func (r *repository) GetProductByPartner(userID int) ([]models.Product, error) {
 	var products []models.Product
-	err := r.db.Where("user_id = ?", userID).Find(&products).Error
+	err := r.db.Preload("User").Where("user_id = ?", userID).Find(&products).Error
 	// err := r.db.Raw("SELECT * FROM products WHERE user_id=?", userID).Error
 
 	return products, err
