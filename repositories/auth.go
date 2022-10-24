@@ -6,16 +6,6 @@ import (
 	"gorm.io/gorm"
 )
 
-// import (
-// 	"waysfood/models"
-
-// 	"gorm.io/gorm"
-// )
-
-// type repository struct {
-// 	db *gorm.DB
-// }
-
 type AuthRepository interface {
 	Register(user models.User) (models.User, error)
 	Login(email string) (models.User, error)

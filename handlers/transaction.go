@@ -22,7 +22,7 @@ func HandlerTransaction(TransactionRepository repositories.TransactionRepository
 	return &handlerTransaction{TransactionRepository}
 }
 
-func (h *handlerTransaction) ShowTransaction(w http.ResponseWriter, r *http.Request) {
+func (h *handlerTransaction) GetAllTransaction(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
 	transaction, err := h.TransactionRepository.ShowTransaction()

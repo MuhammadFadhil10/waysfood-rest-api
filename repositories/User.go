@@ -7,15 +7,11 @@ import (
 )
 
 type UserRepository interface {
-	CreateUser(user models.User) (models.User ,error)
+	CreateUser(user models.User) (models.User, error)
 	GetUsers() ([]models.User, error)
-	FindUserById(ID int) (models.User, error) 
+	FindUserById(ID int) (models.User, error)
 	UpdateUser(user models.User, ID int) (models.User, error)
-	DeleteUser(user models.User,ID int) (models.User, error)
-}
-
-type repository struct {
-	db *gorm.DB
+	DeleteUser(user models.User, ID int) (models.User, error)
 }
 
 func RepositoryUser(db *gorm.DB) *repository {
@@ -32,7 +28,7 @@ func (r *repository) GetUsers() ([]models.User, error) {
 	var users []models.User
 	err := r.db.Raw("SELECT * FROM users").Scan(&users).Error
 
-  	return users, err
+	return users, err
 }
 
 func (r *repository) FindUserById(ID int) (models.User, error) {
@@ -48,9 +44,9 @@ func (r *repository) UpdateUser(user models.User, ID int) (models.User, error) {
 	err := r.db.Model(&user).Where("id=?", ID).Updates(&user).Error
 
 	return user, err
-}  
+}
 
-func (r *repository) DeleteUser( user models.User ,ID int) (models.User, error) {
+func (r *repository) DeleteUser(user models.User, ID int) (models.User, error) {
 	err := r.db.Delete(&user, ID).Error
 
 	return user, err

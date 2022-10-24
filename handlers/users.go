@@ -85,9 +85,10 @@ func (h *handler) FindUserById(w http.ResponseWriter, r *http.Request) {
 	user, err := h.UserRepository.FindUserById(id)
 
 	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
+		w.WriteHeader(http.StatusNotFound)
 		response := dto.ErrorResult{Status: "Failed", Message: err.Error()}
 		json.NewEncoder(w).Encode(response)
+		return
 	}
 
 	w.WriteHeader(http.StatusOK)
@@ -158,4 +159,4 @@ func (h *handler) DeleteUser(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 	response := dto.SuccessResult{Status: "Success", Data: deletedUser}
 	json.NewEncoder(w).Encode(response)
-};
+}
