@@ -5,6 +5,7 @@ import (
 	dto "go-batch2/dto/result"
 	usersdto "go-batch2/dto/users"
 	"go-batch2/models"
+	bcryptpkg "go-batch2/pkg/bcrypt"
 	"go-batch2/repositories"
 	"net/http"
 	"strconv"
@@ -109,6 +110,7 @@ func (h *handler) UpdateUser(w http.ResponseWriter, r *http.Request) {
 	}
 
 	userModel := models.User{}
+	hashedPassword, _ := bcryptpkg.HashingPassword(request.Password)
 
 	if request.FullName != "" {
 		userModel.FullName = request.FullName
@@ -119,7 +121,7 @@ func (h *handler) UpdateUser(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if request.Password != "" {
-		userModel.Password = request.Password
+		userModel.Password = hashedPassword
 	}
 
 	user, err := h.UserRepository.UpdateUser(userModel, id)
@@ -156,19 +158,4 @@ func (h *handler) DeleteUser(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 	response := dto.SuccessResult{Status: "Success", Data: deletedUser}
 	json.NewEncoder(w).Encode(response)
-}
-
-func convertResponse(u models.User) usersdto.UserResponse {
-	return usersdto.UserResponse{
-		ID:       u.ID,
-		Email:    u.Email,
-		Password: u.Password,
-		FullName: u.FullName,
-		Gender:   u.Gender,
-		Phone:    u.Phone,
-		Location: u.Location,
-		Role:     u.Role,
-		Image:    u.Image,
-		
-	}
-}
+};
