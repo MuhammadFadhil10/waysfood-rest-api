@@ -8,6 +8,7 @@ import (
 	"log"
 	"net/http"
 
+	"github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
 	"github.com/joho/godotenv"
 )
@@ -26,6 +27,14 @@ func main() {
 		log.Print("No .env file found")
 	}
 
+	// uploads path prefix
+	r.PathPrefix("/uploads").Handler(http.StripPrefix("/uploads/", http.FileServer(http.Dir("./uploads"))))
+
+	// cors
+	var allowedHeaders = handlers.AllowedHeaders([]string{"X-Requested-With", "Content-Type", "Authorization"})
+	var allowedMethods = handlers.AllowedMethods([]string{"GET", "POST", "PUT", "PATCH", "DELETE", "HEAD", "OPTIONS"})
+	var allowedOrigins = handlers.AllowedOrigins([]string{"*"})
+
 	fmt.Println("server running on port 8000")
-	http.ListenAndServe(":8000", r)
+	http.ListenAndServe(":8000", handlers.CORS(allowedHeaders, allowedMethods, allowedOrigins)(r))
 }
