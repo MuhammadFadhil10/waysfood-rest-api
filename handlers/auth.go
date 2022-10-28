@@ -40,6 +40,16 @@ func (h *handlerAuth) Register(w http.ResponseWriter, r *http.Request) {
 	validation := validator.New()
 	err := validation.Struct(request)
 
+	// check if user email already exist
+	userExist, emailErr := h.AuthRepository.Login(request.Email)
+
+	if emailErr == nil {
+		w.WriteHeader(http.StatusBadRequest)
+		response := dto.ErrorResult{Status: "Failed", Message: "Email " + userExist.Email + " already exist!"}
+		json.NewEncoder(w).Encode(response)
+		return
+	}
+
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		response := dto.ErrorResult{Status: "Failed", Message: err.Error()}
@@ -116,6 +126,7 @@ func (h *handlerAuth) Login(w http.ResponseWriter, r *http.Request) {
 		FullName: user.FullName,
 		Email:    user.Email,
 		Password: user.Password,
+		Role: user.Role,
 		Token:    token,
 	}
 
