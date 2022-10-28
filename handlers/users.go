@@ -11,6 +11,7 @@ import (
 	"strconv"
 
 	"github.com/go-playground/validator/v10"
+	"github.com/golang-jwt/jwt/v4"
 	"github.com/gorilla/mux"
 )
 
@@ -83,6 +84,26 @@ func (h *handler) FindUserById(w http.ResponseWriter, r *http.Request) {
 	id, _ := strconv.Atoi(mux.Vars(r)["id"])
 
 	user, err := h.UserRepository.FindUserById(id)
+
+	if err != nil {
+		w.WriteHeader(http.StatusNotFound)
+		response := dto.ErrorResult{Status: "Failed", Message: err.Error()}
+		json.NewEncoder(w).Encode(response)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+	response := dto.SuccessResult{Status: "Success", Data: user}
+	json.NewEncoder(w).Encode(response)
+}
+
+func (h *handler) GetProfile(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+
+	userInfo := r.Context().Value("userInfo").(jwt.MapClaims)
+	userId := int(userInfo["id"].(float64))
+
+	user, err := h.UserRepository.GetProfile(userId)
 
 	if err != nil {
 		w.WriteHeader(http.StatusNotFound)

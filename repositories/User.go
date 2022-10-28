@@ -10,6 +10,7 @@ type UserRepository interface {
 	CreateUser(user models.User) (models.User, error)
 	GetUsers() ([]models.User, error)
 	FindUserById(ID int) (models.User, error)
+	GetProfile(ID int) (models.User, error)
 	UpdateUser(user models.User, ID int) (models.User, error)
 	DeleteUser(user models.User, ID int) (models.User, error)
 }
@@ -32,6 +33,13 @@ func (r *repository) GetUsers() ([]models.User, error) {
 }
 
 func (r *repository) FindUserById(ID int) (models.User, error) {
+	var user models.User
+
+	err := r.db.First(&user, ID).Error
+
+	return user, err
+}
+func (r *repository) GetProfile(ID int) (models.User, error) {
 	var user models.User
 
 	err := r.db.First(&user, ID).Error

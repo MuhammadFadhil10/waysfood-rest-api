@@ -12,6 +12,7 @@ import (
 	"go-batch2/repositories"
 	"log"
 	"net/http"
+	"os"
 	"time"
 
 	"github.com/go-playground/validator/v10"
@@ -65,6 +66,7 @@ func (h *handlerAuth) Register(w http.ResponseWriter, r *http.Request) {
 		Gender:   request.Gender,
 		Phone:    request.Phone,
 		Role:     request.Role,
+		Image:    os.Getenv("UPLOAD_PATH_NAME") + "default_profile.png", // set default profile photo
 	}
 
 	user, err := h.AuthRepository.Register(userModel)
@@ -126,7 +128,7 @@ func (h *handlerAuth) Login(w http.ResponseWriter, r *http.Request) {
 		FullName: user.FullName,
 		Email:    user.Email,
 		Password: user.Password,
-		Role: user.Role,
+		Role:     user.Role,
 		Token:    token,
 	}
 
