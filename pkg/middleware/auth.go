@@ -3,6 +3,7 @@ package middleware
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	dto "go-batch2/dto/result"
 	jwttoken "go-batch2/pkg/jwt"
 	"net/http"
@@ -20,6 +21,7 @@ func Auth(next http.HandlerFunc) http.HandlerFunc {
 		w.Header().Set("Content-Type", "application/json")
 
 		token := r.Header.Get("Authorization")
+		fmt.Println("token from header", token)
 
 		if token == "" {
 			w.WriteHeader(http.StatusUnauthorized)

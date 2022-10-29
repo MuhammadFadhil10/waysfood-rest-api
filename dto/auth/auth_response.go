@@ -1,8 +1,8 @@
 package authdto
 
 type AuthResponse struct {
+	ID int `json:"id"`
 	Email    string `json:"email"`
-	Password string `json:"password"`
 	FullName string `json:"fullName"`
 	Role     string `json:"role"`
 	Token    string `json:"token"`

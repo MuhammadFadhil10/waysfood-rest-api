@@ -2,12 +2,13 @@ package handlers
 
 import (
 	"encoding/json"
+	"fmt"
 	dto "go-batch2/dto/result"
 	usersdto "go-batch2/dto/users"
 	"go-batch2/models"
-	bcryptpkg "go-batch2/pkg/bcrypt"
 	"go-batch2/repositories"
 	"net/http"
+	"os"
 	"strconv"
 
 	"github.com/go-playground/validator/v10"
@@ -105,6 +106,8 @@ func (h *handler) GetProfile(w http.ResponseWriter, r *http.Request) {
 
 	user, err := h.UserRepository.GetProfile(userId)
 
+	fmt.Println(user)
+
 	if err != nil {
 		w.WriteHeader(http.StatusNotFound)
 		response := dto.ErrorResult{Status: "Failed", Message: err.Error()}
@@ -121,30 +124,52 @@ func (h *handler) UpdateUser(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
 	id, _ := strconv.Atoi(mux.Vars(r)["id"])
+	var request usersdto.UpdateUserRequest
 
-	request := new(usersdto.UpdateUserRequest)
-
-	if err := json.NewDecoder(r.Body).Decode(request); err != nil {
-		w.WriteHeader(http.StatusBadRequest)
-		response := dto.ErrorResult{Status: "Failed", Message: err.Error()}
-		json.NewEncoder(w).Encode(response)
-		return
+	dataUpload := r.Context().Value("dataFile")
+	var filename string
+	if dataUpload != "" {
+		filename = dataUpload.(string)
+		request = usersdto.UpdateUserRequest{
+			FullName: r.FormValue("fullname"),
+			Image:    os.Getenv("UPLOAD_path_name") + filename,
+			Email:    r.FormValue("email"),
+			Phone:    r.FormValue("phone"),
+			Location: r.FormValue("location"),
+		}
+	} else {
+		request = usersdto.UpdateUserRequest{
+			FullName: r.FormValue("fullname"),
+			Email:    r.FormValue("email"),
+			Phone:    r.FormValue("phone"),
+			Location: r.FormValue("location"),
+		}
 	}
 
 	userModel := models.User{}
-	hashedPassword, _ := bcryptpkg.HashingPassword(request.Password)
+	// hashedPassword, _ := bcryptpkg.HashingPassword(request.Password)
 
 	if request.FullName != "" {
 		userModel.FullName = request.FullName
 	}
 
+	if request.Image != "" {
+		userModel.Image = request.Image
+	}
+
 	if request.Email != "" {
 		userModel.Email = request.Email
 	}
-
-	if request.Password != "" {
-		userModel.Password = hashedPassword
+	if request.Phone != "" {
+		userModel.Phone = request.Phone
 	}
+	if request.Location != "" {
+		userModel.Location = request.Location
+	}
+
+	// if request.Password != "" {
+	// 	userModel.Password = hashedPassword
+	// }
 
 	user, err := h.UserRepository.UpdateUser(userModel, id)
 
