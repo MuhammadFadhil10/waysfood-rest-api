@@ -65,16 +65,27 @@ func (h *handler) CreateUser(w http.ResponseWriter, r *http.Request) {
 func (h *handler) GetUsers(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
-	users, err := h.UserRepository.GetUsers()
+	role := r.URL.Query()["role"]
 
-	if err != nil {
+	var (
+		users   []models.User
+		userErr error
+	)
+
+	if len(role) > 0 && role[0] == "partner" {
+		users, userErr = h.UserRepository.GetPartners(role[0])
+	} else {
+		users, userErr = h.UserRepository.GetUsers()
+	}
+
+	if userErr != nil {
 		w.WriteHeader(http.StatusInternalServerError)
-		response := dto.ErrorResult{Status: "Failed", Message: err.Error()}
+		response := dto.ErrorResult{Status: "Failed", Message: userErr.Error()}
 		json.NewEncoder(w).Encode(response)
 	}
 
 	w.WriteHeader(http.StatusOK)
-	response := dto.SuccessResult{Status: "Success", Data: users}
+	response := dto.SuccessResult{Status: "Success", Data: convertUsersResponse(users)}
 	json.NewEncoder(w).Encode(response)
 
 }
@@ -205,4 +216,23 @@ func (h *handler) DeleteUser(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 	response := dto.SuccessResult{Status: "Success", Data: deletedUser}
 	json.NewEncoder(w).Encode(response)
+}
+
+// convert many users response
+func convertUsersResponse(u []models.User) []models.UsersProfileResponse {
+
+	var resp []models.UsersProfileResponse
+
+	for _, item := range u {
+		resp = append(resp, models.UsersProfileResponse{
+			ID:       item.ID,
+			FullName: item.FullName,
+			Image:    item.Image,
+			Email:    item.Email,
+			Phone:    item.Phone,
+			Location: item.Location,
+		})
+	}
+
+	return resp
 }

@@ -9,6 +9,7 @@ import (
 type UserRepository interface {
 	CreateUser(user models.User) (models.User, error)
 	GetUsers() ([]models.User, error)
+	GetPartners(role string) ([]models.User, error)
 	FindUserById(ID int) (models.User, error)
 	GetProfile(ID int) (models.User, error)
 	UpdateUser(user models.User, ID int) (models.User, error)
@@ -28,6 +29,13 @@ func (r *repository) CreateUser(user models.User) (models.User, error) {
 func (r *repository) GetUsers() ([]models.User, error) {
 	var users []models.User
 	err := r.db.Raw("SELECT * FROM users").Scan(&users).Error
+
+	return users, err
+}
+
+func (r *repository) GetPartners(role string) ([]models.User, error) {
+	var users []models.User
+	err := r.db.Find(&users, "role=?", role).Error
 
 	return users, err
 }
