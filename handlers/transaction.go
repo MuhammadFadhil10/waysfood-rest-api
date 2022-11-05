@@ -8,9 +8,11 @@ import (
 	"go-batch2/models"
 	"go-batch2/repositories"
 	"net/http"
+	"strconv"
 
 	"github.com/go-playground/validator/v10"
 	"github.com/golang-jwt/jwt/v4"
+	"github.com/gorilla/mux"
 )
 
 type handlerTransaction struct {
@@ -56,6 +58,27 @@ func HandlerTransaction(TransactionRepository repositories.TransactionRepository
 // 	json.NewEncoder(w).Encode(response)
 // }
 
+func (h *handlerTransaction) GetTransactionByPartner(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+
+	partnerId, _ := strconv.Atoi(mux.Vars(r)["partnerId"])
+
+	transaction := []models.Transaction{}
+
+	myTransaction, err := h.TransactionRepository.GetTransactionByPartnerID(transaction, partnerId)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		response := dto.ErrorResult{Status: "Failed", Message: err.Error()}
+		json.NewEncoder(w).Encode(response)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+	response := dto.SuccessResult{Status: "Success", Data: h.convertTransactionResponse(myTransaction)}
+	json.NewEncoder(w).Encode(response)
+
+}
+
 func (h *handlerTransaction) CreateTransaction(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
@@ -68,32 +91,6 @@ func (h *handlerTransaction) CreateTransaction(w http.ResponseWriter, r *http.Re
 		response := dto.ErrorResult{Status: "Failed", Message: err.Error()}
 		json.NewEncoder(w).Encode(response)
 		return
-	}
-
-	// var c repositories.CartRepository
-
-	// fmt.Println(c)
-
-	userCart, err := h.TransactionRepository.FindChartByUserID(userId)
-
-	fmt.Println(err)
-	fmt.Println(userCart)
-	fmt.Println(len(userCart))
-
-	var order models.Order
-	// var addOrder models.Order
-
-	for _, c := range userCart {
-		order.ProductID = c.ProductID
-		order.BuyerID = userId
-		order.SellerID = request.SellerID
-		err := h.TransactionRepository.CreateTransactionOrder(order)
-		if err != nil {
-			w.WriteHeader(http.StatusInternalServerError)
-			response := dto.ErrorResult{Status: "Failed", Message: err.Error()}
-			json.NewEncoder(w).Encode(response)
-			return
-		}
 	}
 
 	transaction := models.Transaction{
@@ -112,12 +109,39 @@ func (h *handlerTransaction) CreateTransaction(w http.ResponseWriter, r *http.Re
 		return
 	}
 
-	transaction, err = h.TransactionRepository.CreateTransaction(transaction)
+	var createTransactionErr error
+	transaction, createTransactionErr = h.TransactionRepository.CreateTransaction(transaction)
+	if createTransactionErr != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		response := dto.ErrorResult{Status: "Failed", Message: createTransactionErr.Error()}
+		json.NewEncoder(w).Encode(response)
+		return
+	}
+
+	// add order product list
+	userCart, err := h.TransactionRepository.FindChartByUserID(userId)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		response := dto.ErrorResult{Status: "Failed", Message: err.Error()}
 		json.NewEncoder(w).Encode(response)
 		return
+	}
+
+	var order models.Order
+
+	for _, c := range userCart {
+		fmt.Println("transaction id:", transaction.ID)
+		order.ProductID = c.ProductID
+		order.BuyerID = userId
+		order.SellerID = request.SellerID
+		order.TransactionID = transaction.ID
+		err := h.TransactionRepository.CreateTransactionOrder(order)
+		if err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+			response := dto.ErrorResult{Status: "Failed", Message: err.Error()}
+			json.NewEncoder(w).Encode(response)
+			return
+		}
 	}
 
 	transaction, _ = h.TransactionRepository.GetTransactionByID(transaction.ID)
@@ -211,3 +235,29 @@ func (h *handlerTransaction) CreateTransaction(w http.ResponseWriter, r *http.Re
 // 	}
 // 	return resp
 // }
+
+func (h *handlerTransaction) convertTransactionResponse(t []models.Transaction) []transactiondto.GetTransactionResponse {
+	var order []models.Order
+	var resp []transactiondto.GetTransactionResponse
+	
+	// var orderList [] models.Order
+	
+	for _, item := range t {
+		test, err := h.TransactionRepository.GetTransactionProducts(order, item.ID)
+		fmt.Println("kontol")
+		fmt.Println(err)
+		resp = append(resp, transactiondto.GetTransactionResponse{
+			ID:        item.ID,
+			Qty:       item.Qty,
+			Buyer:     item.Buyer,
+			Seller:    item.Seller,
+			Status:    item.Status,
+			OrderList: test,
+		})
+	}
+
+	fmt.Println(resp)
+
+	return resp
+
+}
