@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"encoding/json"
+	"fmt"
 	dto "go-batch2/dto/result"
 	transactiondto "go-batch2/dto/transaction"
 	"go-batch2/models"
@@ -77,6 +78,10 @@ func (h *handlerTransaction) CreateTransaction(w http.ResponseWriter, r *http.Re
 		Qty:       request.Qty,
 		ProductID: request.ProductID,
 	}
+
+	fmt.Println("userid", transaction.UsersID)
+	fmt.Println("productid", transaction.ProductID)
+	// fmt.Println(transaction.UsersID)
 
 	validation := validator.New()
 	err := validation.Struct(request)

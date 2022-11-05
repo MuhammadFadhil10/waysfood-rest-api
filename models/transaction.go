@@ -7,5 +7,7 @@ type Transaction struct {
 	Users     UsersProfileResponse `json:"userOrder" gorm:"constraint:OnDelete:CASCADE,OnUpdate:CASCADE"`
 	Status    string               `json:"status"`
 	ProductID int                  `json:"product_id" gorm:"type: int"`
-	Product   ProductResponse      `json:"order" gorm:"constraint:OnDelete:CASCADE,OnUpdate:CASCADE"`
+	Product   ProductResponse      `json:"order" gorm:"foreignKey:product_id;references:ID;constraint:OnDelete:CASCADE,OnUpdate:CASCADE"`
 }
+
+// gorm:"foreignKey:product_id;references:ID;constraint:OnDelete:CASCADE,OnUpdate:CASCADE"

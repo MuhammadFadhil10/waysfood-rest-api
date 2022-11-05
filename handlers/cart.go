@@ -111,19 +111,6 @@ func (h *handlerCart) DeleteChartByQty(w http.ResponseWriter, r *http.Request) {
 
 	var cartUpdate models.Cart
 
-	// var p repositories.ProductRepository
-
-	// product, err := p.GetProductByID(productId)
-
-	// if err != nil {
-	// 	w.WriteHeader(http.StatusInternalServerError)
-	// 	response := dto.ErrorResult{Status: "Failed", Message: err.Error()}
-	// 	json.NewEncoder(w).Encode(response)
-	// 	return
-	// }
-
-	// var cartUpdate models.Cart
-
 	var cart models.Cart
 	var updateErr error
 
@@ -154,6 +141,30 @@ func (h *handlerCart) DeleteChartByID(w http.ResponseWriter, r *http.Request) {
 	cartItem, _ := h.CartRepository.GetChartByUser(userId, productId)
 
 	cartDelete, err := h.CartRepository.DeleteCartByID(cartItem, cartItem.ID)
+
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		response := dto.ErrorResult{Status: "Failed", Message: err.Error()}
+		json.NewEncoder(w).Encode(response)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+	response := dto.SuccessResult{Status: "Success", Data: cartDelete}
+	json.NewEncoder(w).Encode(response)
+}
+
+func (h *handlerCart) DeleteAllCart(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+
+	userInfo := r.Context().Value("userInfo").(jwt.MapClaims)
+	userId := int(userInfo["id"].(float64))
+
+	// cartItem, _ := h.CartRepository.GetChartByUser(userId, productId)
+
+	cart := models.Cart{}
+
+	cartDelete, err := h.CartRepository.DeleteAllCart(cart, userId)
 
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
