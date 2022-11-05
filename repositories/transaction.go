@@ -87,8 +87,9 @@ func (r *repository) UpdateTransaction(status string, ID string) error {
 
 	// If is different & Status is "success" decrement product quantity
 	if status != transaction.Status && status == "success" {
+
 		var order []models.Order
-		orderedProduct, _ := r.GetTransactionProducts(order,transaction.ID)
+		orderedProduct, _ := r.GetTransactionProducts(order, transaction.ID)
 		for _, p := range orderedProduct {
 			var product models.Product
 			r.db.First(&product, p.ID)
