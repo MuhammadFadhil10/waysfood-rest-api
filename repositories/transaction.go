@@ -16,7 +16,7 @@ type TransactionRepository interface {
 	CreateTransactionOrder(order models.Order) error
 	CreateTransaction(transaction models.Transaction) (models.Transaction, error)
 	FindChartByUserID(userID int) ([]models.Cart, error)
-	UpdateTransaction(transaction models.Transaction, ID int) (models.Transaction, error)
+	UpdateTransaction(status string, ID string) error
 	DeleteTransaction(transaction models.Transaction, ID int) (models.Transaction, error)
 }
 
@@ -33,7 +33,7 @@ func (r *repository) ShowTransaction() ([]models.Transaction, error) {
 
 func (r *repository) GetTransactionByID(ID int) (models.Transaction, error) {
 	var transactions models.Transaction
-	err := r.db.Preload("Buyer").Preload("Seller").First(&transactions, ID).Error
+	err := r.db.Preload("Buyer").Preload("Seller").First(&transactions, "id = ?", ID).Error
 
 	return transactions, err
 }
@@ -78,10 +78,30 @@ func (r *repository) CreateTransactionOrder(order models.Order) error {
 	return err
 }
 
-func (r *repository) UpdateTransaction(transaction models.Transaction, ID int) (models.Transaction, error) {
-	err := r.db.Model(&transaction).Where("id=?", ID).Updates(&transaction).Error
+func (r *repository) UpdateTransaction(status string, ID string) error {
+	var transaction models.Transaction
+	r.db.First(&transaction, ID)
 
-	return transaction, err
+	// new status : pending
+	// status : pending
+
+	// If is different & Status is "success" decrement product quantity
+	if status != transaction.Status && status == "success" {
+		var order []models.Order
+		orderedProduct, _ := r.GetTransactionProducts(order,transaction.ID)
+		for _, p := range orderedProduct {
+			var product models.Product
+			r.db.First(&product, p.ID)
+			product.Qty = product.Qty - 1
+			r.db.Save(&product)
+		}
+	}
+
+	transaction.Status = status
+
+	err := r.db.Save(&transaction).Error
+
+	return err
 }
 
 func (r *repository) DeleteTransaction(transaction models.Transaction, ID int) (models.Transaction, error) {
