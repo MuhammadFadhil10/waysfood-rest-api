@@ -10,7 +10,9 @@ import (
 type TransactionRepository interface {
 	ShowTransaction() ([]models.Transaction, error)
 	GetTransactionByID(ID int) (models.Transaction, error)
+	CreateTransactionOrder(order models.Order) (error)
 	CreateTransaction(transaction models.Transaction) (models.Transaction, error)
+	FindChartByUserID(userID int) ([]models.Cart, error)
 	UpdateTransaction(transaction models.Transaction, ID int) (models.Transaction, error)
 	DeleteTransaction(transaction models.Transaction, ID int) (models.Transaction, error)
 }
@@ -28,9 +30,15 @@ func (r *repository) ShowTransaction() ([]models.Transaction, error) {
 
 func (r *repository) GetTransactionByID(ID int) (models.Transaction, error) {
 	var transactions models.Transaction
-	err := r.db.Preload("Users").Preload("Products").First(&transactions, ID).Error
+	err := r.db.Preload("Buyer").Preload("Seller").First(&transactions, ID).Error
 
 	return transactions, err
+}
+
+func (r *repository) FindChartByUserID(userID int) ([]models.Cart, error) {
+	var cart []models.Cart
+	err := r.db.Preload("Users").Preload("Products.User").Where("users_id=?", userID).Find(&cart).Error
+	return cart, err
 }
 
 func (r *repository) CreateTransaction(transaction models.Transaction) (models.Transaction, error) {
@@ -41,6 +49,12 @@ func (r *repository) CreateTransaction(transaction models.Transaction) (models.T
 	}
 
 	return transaction, err
+}
+
+func (r *repository) CreateTransactionOrder(order models.Order) (error) {
+	err := r.db.Create(&order).Error
+
+	return err
 }
 
 func (r *repository) UpdateTransaction(transaction models.Transaction, ID int) (models.Transaction, error) {
