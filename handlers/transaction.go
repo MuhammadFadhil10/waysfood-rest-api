@@ -179,9 +179,9 @@ func (h *handlerTransaction) CreateTransaction(w http.ResponseWriter, r *http.Re
 		}
 	}
 
-	var cart models.Cart
+	// var cart models.Cart
 
-	h.TransactionRepository.DeleteFromCart(cart,userId)
+	// h.TransactionRepository.DeleteFromCart(cart,userId)
 
 	w.WriteHeader(http.StatusOK)
 	response := dto.SuccessResult{Status: "Success", Data: snapResp}
@@ -241,12 +241,12 @@ func (h *handlerTransaction) convertTransactionResponse(t []models.Transaction) 
 		test, err := h.TransactionRepository.GetTransactionProducts(order, item.ID)
 		fmt.Println(err)
 		resp = append(resp, transactiondto.GetTransactionResponse{
-			ID:        item.ID,
-			Qty:       item.Qty,
-			Buyer:     item.Buyer,
-			Seller:    item.Seller,
-			Status:    item.Status,
-			OrderList: test,
+			ID:         item.ID,
+			Qty:        item.Qty,
+			Buyer:      item.Buyer,
+			Seller:     item.Seller,
+			Status:     item.Status,
+			OrderList:  test,
 			TotalPrice: item.TotalPrice,
 		})
 	}
