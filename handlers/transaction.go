@@ -179,9 +179,9 @@ func (h *handlerTransaction) CreateTransaction(w http.ResponseWriter, r *http.Re
 		}
 	}
 
-	// var cart models.Cart
+	var cart models.Cart
 
-	// h.TransactionRepository.DeleteFromCart(cart,userId)
+	h.TransactionRepository.DeleteFromCart(cart,userId)
 
 	w.WriteHeader(http.StatusOK)
 	response := dto.SuccessResult{Status: "Success", Data: snapResp}
