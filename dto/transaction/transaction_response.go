@@ -13,12 +13,13 @@ type TransactionResponse struct {
 }
 
 type GetTransactionResponse struct {
-	ID        int                         `json:"id" gorm:"primary_key:auto_increment"`
-	Qty       int                         `json:"qty"`
-	Buyer     models.UsersProfileResponse `json:"buyer"`
-	Seller    models.UsersProfileResponse `json:"seller" gorm:"constraint:OnDelete:CASCADE,OnUpdate:CASCADE"`
-	Status    string                      `json:"status"`
-	OrderList []models.Order              `json:"orderList"`
+	ID         int                         `json:"id" gorm:"primary_key:auto_increment"`
+	Qty        int                         `json:"qty"`
+	Buyer      models.UsersProfileResponse `json:"buyer"`
+	Seller     models.UsersProfileResponse `json:"seller" gorm:"constraint:OnDelete:CASCADE,OnUpdate:CASCADE"`
+	Status     string                      `json:"status"`
+	OrderList  []models.Order              `json:"orderList"`
+	TotalPrice int                         `json:"totalPrice"`
 }
 
 // type Transaction struct {

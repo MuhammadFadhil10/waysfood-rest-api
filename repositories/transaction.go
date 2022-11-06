@@ -18,6 +18,7 @@ type TransactionRepository interface {
 	FindChartByUserID(userID int) ([]models.Cart, error)
 	UpdateTransaction(status string, ID string) error
 	DeleteTransaction(transaction models.Transaction, ID int) (models.Transaction, error)
+	DeleteFromCart(Cart models.Cart, userID int) (models.Cart, error)
 }
 
 func RepositoryTransaction(db *gorm.DB) *repository {
@@ -109,4 +110,9 @@ func (r *repository) DeleteTransaction(transaction models.Transaction, ID int) (
 	err := r.db.Delete(&transaction).Error
 
 	return transaction, err
+}
+
+func (r *repository) DeleteFromCart(Cart models.Cart, userID int) (models.Cart, error) {
+	err := r.db.Preload("User").Preload("Products.User").Where("users_id = ?", userID).Delete(&Cart).Error
+	return Cart, err
 }
